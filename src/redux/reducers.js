@@ -1,52 +1,31 @@
-import { checkNeighbors, getRandomColor } from '../utils';
-import CircleObject from './CircleObject';
+import { checkNeighbors, getRandomColor, makeCircle } from '../utils';
+// import CircleObject from '../CircleObject';
+import GlobalSettings from '../GlobalSettings';
+
+// const checkedCircles = [];
 
 
-const globalSettings = {
-    initWidth: 800,
-    initHeight: 600,
-    circleStartSize: 30,
-    warningColor: '#FF0000',
-    testingColor: '#00FF00',
-    settledColor: '#000000',
-    testingOpacity: 0.3,
-    settledOpacity: 0.8,
-
-}
-
-const makeCircle = (i) => {
-    const r = 30 + Math.random() * 50;
-    const x = r + Math.random() * (1000 - r);
-    const y = r + Math.random() * (500 -r); 
-    
-    return new CircleObject(i, x, y, r, getRandomColor(), globalSettings.settledColor, globalSettings.settledOpacity);
-
-}
-
-const checkedCircles = [];
-
-
-    for(let i = 0; i < 100; i++ ){
-        const circle = makeCircle(i);
-        if(!checkNeighbors(circle, checkedCircles)){
-            checkedCircles.push(circle);
-        }
-    }
+//     for(let i = 0; i < 100; i++ ){
+//         const circle = makeCircle(i);
+//         if(!checkNeighbors(circle, checkedCircles)){
+//             checkedCircles.push(circle);
+//         }
+//     }
 
 
 const INITIAL_STATE = {
     mousePos: {x: null, y: null},
-    svgWidth: globalSettings.initWidth,
-    svgHeight: globalSettings.initHeight,
+    svgWidth: GlobalSettings.initWidth,
+    svgHeight: GlobalSettings.initHeight,
     timeTick: 0,
-    circles : checkedCircles,
+    circles : [],
     circlesWithChildren : [],
-    currentIDX : checkedCircles.length + 1,
+    currentIDX : 0,
     currentChildIDX: 0,
-    circleSize : globalSettings.circleStartSize,
-    testColor: globalSettings.testColor,
-    warningColor: globalSettings.warningColor,
-    setColor: globalSettings.setColor,
+    circleSize : GlobalSettings.circleStartSize,
+    testColor: GlobalSettings.testColor,
+    warningColor: GlobalSettings.warningColor,
+    setColor: GlobalSettings.setColor,
     testOpacity: 0.3,
     setOpacity: 1.0,
 
@@ -115,7 +94,7 @@ export const ParticleReducer = (state = INITIAL_STATE, action) => {
         
         return {
             ...state,
-            circleSize: globalSettings.circleStartSize,
+            circleSize: GlobalSettings.circleStartSize,
         }       
         
         
@@ -134,10 +113,10 @@ export const ParticleReducer = (state = INITIAL_STATE, action) => {
                     id:  currentIDX,
                     x: action.payload.x,
                     y: action.payload.y,
-                    r: circleSize, 
+                    r: action.payload.r || circleSize, 
                     stroke: getRandomColor(),
-                    fill: globalSettings.testingColor,
-                    opacity: globalSettings.testingOpacity,
+                    fill: GlobalSettings.testingColor,
+                    opacity: GlobalSettings.testingOpacity,
                     overlap: false,
                 };
                 newCircles.push(newCircle);
@@ -146,6 +125,14 @@ export const ParticleReducer = (state = INITIAL_STATE, action) => {
             ...state,
             circles: circles.concat(newCircles),
         } 
+
+        case 'ADD_CIRCLE_OBJECT' : 
+             
+            return {
+                ...state,
+                circles: circles.concat([action.payload.circle])
+            }
+
 
         case 'CHECK_NEIGHBORS' : 
             
@@ -158,7 +145,8 @@ export const ParticleReducer = (state = INITIAL_STATE, action) => {
 
 // if (distance < circle1.radius + circle2.radius) {
 //     // collision detected!
-// }
+// }    
+            console.log(currentIDX, 'in neighbors reducer');
         
             const circleToCheck = circles.filter(circle => circle.id === currentIDX);
             const thisCircle = circleToCheck[0];
@@ -167,25 +155,33 @@ export const ParticleReducer = (state = INITIAL_STATE, action) => {
                     const dx = otherCircle.x - thisCircle.x;
                     const dy = otherCircle.y - thisCircle.y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
-                    if(dist < otherCircle.r + thisCircle.r){
-                        thisCircle.fill = globalSettings.warningColor;
+                    if(dist < otherCircle.r + thisCircle.r + 10){
+                        thisCircle.fill = GlobalSettings.warningColor;
                         thisCircle.overlap = true;
                     }
-            })
-
-
-
-            
+            })  
             return {
                 ...state,
                 circles: otherCircles.concat(circleToCheck),
             }
 
+        case 'ADD_PACKED_CIRCLE' : 
+            const packedCircles = circles;
+            const circleToAdd = makeCircle(currentIDX);
+            if(!checkNeighbors(circleToAdd, packedCircles)){
+                packedCircles.push(circleToAdd)
+            }
+            return {
+                ...state,
+                circles: circles.concat([circleToAdd]),
+                currentIDX: currentIDX + 1,
+            }    
+
         case 'FIX_CIRCLE' : 
             const circleToFix = circles.filter(circle => circle.id === currentIDX);
             const fixedCircles = circles.filter(circle => circle.id !== currentIDX);
-            circleToFix[0].opacity = globalSettings.settledOpacity;
-            circleToFix[0].fill = globalSettings.settledColor;
+            circleToFix[0].opacity = GlobalSettings.settledOpacity;
+            circleToFix[0].fill = GlobalSettings.settledColor;
             return {
                 ...state,
                 circles: fixedCircles.concat(circleToFix),

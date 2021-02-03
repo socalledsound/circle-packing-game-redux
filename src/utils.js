@@ -1,5 +1,30 @@
+import GlobalSettings from './GlobalSettings';
+import CircleObject from './CircleObject';
+
 export const getRandomColor = () => `#${Math.floor(Math.random() * 16777215).toString(16)}`;
    
+export const makeCircle = (i) => {
+    const r = 10 + Math.random() * 1;
+    const x = r + Math.random() * (1000 - r);
+    const y = r + Math.random() * (500 -r); 
+    
+    return new CircleObject(i, x, y, r, getRandomColor(), GlobalSettings.testingColor, GlobalSettings.testingOpacity, false);
+
+}
+
+export const makeCircleCircle = (i) => {
+    const theta = Math.random() * 6.28;
+    const metaRadius = 300;
+    const center = 400;
+    const r = 5 + Math.random() * 30;
+    const x = 200 + center + Math.sin(theta) * Math.random() * metaRadius;
+    const y = 100 + center + Math.cos(theta) * Math.random() * metaRadius; 
+    
+    return new CircleObject(i, x, y, r, getRandomColor(), GlobalSettings.testingColor, GlobalSettings.testingOpacity, false);
+
+}
+
+
 
 export const checkNeighbors = (thisCircle, otherCircles) => {
    // console.log('checking');

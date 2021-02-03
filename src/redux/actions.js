@@ -11,6 +11,8 @@ export const ADD_CHILD_CIRCLE = "ADD_CHILD_CIRCLE";
 export const INCREMENT_CIRCLE_SIZE = "INCREMENT_CIRCLE_SIZE";
 export const RESET_CIRCLE_SIZE = "RESET_CIRCLE_SIZE";
 export const CHECK_NEIGHBORS = "CHECK_NEIGHBORS";
+export const ADD_PACKED_CIRCLE = "ADD_PACKED_CIRCLE";
+export const ADD_CIRCLE_OBJECT = 'ADD_CIRCLE_OBJECT';
 
 // export function tickTime() {
 //     return {
@@ -85,13 +87,13 @@ export function removeCircle(idx){
     }
 }
 
-export function addCircle(x, y, idx){
+export function addCircle(x, y, r){
     return {
         type: ADD_CIRCLE,
         payload : {
             x,
             y,
-            idx
+            r
         }
     }
 }
@@ -105,9 +107,24 @@ export function addChildCircle(idx){
     }
 }
 
+export function addCircleObject(circle){
+    return {
+        type: ADD_CIRCLE_OBJECT,
+        payload: {
+            circle
+        }
+    }
+}
+
 export function checkNeighbors(){
     return {
         type: CHECK_NEIGHBORS,
+    }
+}
+
+export function addPackedCircle(){
+    return {
+        type: ADD_PACKED_CIRCLE
     }
 }
 

@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
+import { makeCircle, makeCircleCircle } from './utils';
 
 import {
     resizeScreen,
@@ -15,9 +16,12 @@ import {
     addChildCircle,
     checkNeighbors,
     removeCircle,
+    addPackedCircle,
+    addCircleObject,
 } from './redux/actions';
 
 import MainView from './components/MainView';
+// import { makeCircle } from './utils';
 
 class App extends Component {
     state = { 
@@ -26,8 +30,38 @@ class App extends Component {
 
 
      componentDidMount(){
+        
         this.onResize();    
         window.addEventListener("resize", this.onResize);
+
+        this.initCircles()
+
+     }
+
+     initCircles = () => {
+        const { addCircleObject, checkNeighbors, circles, currentIDX } = this.props;
+        console.log(currentIDX);
+        addCircleObject(makeCircleCircle(currentIDX));
+        checkNeighbors();
+        setTimeout(this.checkCircle, 50);   
+        
+        if(circles.length < 1000){
+            setTimeout(this.initCircles, 100);
+        }
+     }
+
+     checkCircle = () => {
+        const { fixCircle, incrementIDX, removeCircle, circles, currentIDX } = this.props;
+        console.log(circles);
+        const thisCircle = circles.filter(circle => circle.id === currentIDX)[0];
+        
+        if(!thisCircle.overlap){
+            console.log(thisCircle.overlap);
+            fixCircle();
+            incrementIDX();    
+        } else {
+            removeCircle(currentIDX);
+        }
      }
 
      onResize = () => {
@@ -41,8 +75,8 @@ class App extends Component {
      }
 
      startTicker = () => {
-        const { startTicker, tickTime, addCircle, incrementCircleSize, checkNeighbors, addChildCircle, state } = this.props;
-        const { tickerStarted, mousePos, currentIDX } = state;
+        const { startTicker, tickTime, addCircle, incrementCircleSize, checkNeighbors, addChildCircle, tickerStarted, mousePos, currentIDX } = this.props;
+        // const { tickerStarted, mousePos, currentIDX } = state;
         //console.log(tickerStarted, 'in start ticker');
 
         
@@ -70,8 +104,8 @@ class App extends Component {
      }
 
     stopTicker = () => {
-        const { stopTicker, resetCircleSize, incrementIDX, fixCircle, removeCircle, state } = this.props;
-        const { tickerStarted, circles, currentIDX } = state;
+        const { stopTicker, resetCircleSize, incrementIDX, fixCircle, removeCircle, tickerStarted, circles, currentIDX } = this.props;
+        // const { tickerStarted, circles, currentIDX } = state;
         resetCircleSize();
         
         const thisCircle = circles.filter(circle => circle.id === currentIDX)[0];
@@ -110,7 +144,11 @@ class App extends Component {
 }
  
 const mapStateToProps = state => ({
-    state: state
+    state: state,
+    circles: state.circles,
+    tickerStarted: state.tickerStarted, 
+    currentIDX : state.currentIDX,
+    mousePos : state.mousePos,
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -127,6 +165,8 @@ const mapDispatchToProps = dispatch => ({
     resetCircleSize : () => dispatch(resetCircleSize()),
     checkNeighbors : () => dispatch(checkNeighbors()),
     removeCircle : (idx) => dispatch(removeCircle(idx)),
+    addPackedCircle : () => dispatch(addPackedCircle()),
+    addCircleObject : (circle) => dispatch(addCircleObject(circle)),
 })
 
 

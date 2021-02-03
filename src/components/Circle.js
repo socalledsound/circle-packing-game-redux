@@ -9,7 +9,7 @@ const Circle = ({x, y, r, stroke, fill, opacity}) => {
         return ( 
 
             <g>
-                <circle cx={x} cy={y} r={r} stroke={stroke} fill={fill} opacity={opacity}/>
+                <circle cx={x} cy={y} r={r} stroke={stroke} fill={fill} opacity={opacity} strokeWidth="10"/>
                 {/* <circle cx={x} cy={y} r={size} fill={getRandomColor()}/> 
                 <circle cx={x} cy={y} r={size * 0.9} fill={getRandomColor()}/> 
                 <circle cx={x} cy={y} r={size * 0.7} fill={getRandomColor()}/> 
