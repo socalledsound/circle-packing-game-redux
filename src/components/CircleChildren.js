@@ -1,7 +1,8 @@
 import React from 'react';
 
-const Circle = ({x, y, r, stroke, fill, opacity}) => {
+const CircleChildren = ({CircleChildren}) => {
    // console.log(x,y,r, stroke);
+   
     
     // const circles = Array.from({ length: numCircles }, (_, i) => i);
 
@@ -27,4 +28,4 @@ const Circle = ({x, y, r, stroke, fill, opacity}) => {
 
 }
  
-export default Circle;
+export default CircleChildren;

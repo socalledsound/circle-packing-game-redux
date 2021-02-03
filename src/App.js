@@ -9,8 +9,12 @@ import {
     tickTime,
     incrementIDX,
     incrementCircleSize,
+    resetCircleSize,
     addCircle,
+    fixCircle,
     addChildCircle,
+    checkNeighbors,
+    removeCircle,
 } from './redux/actions';
 
 import MainView from './components/MainView';
@@ -37,26 +41,27 @@ class App extends Component {
      }
 
      startTicker = () => {
-        const { startTicker, tickTime, incrementIDX, addCircle, incrementCircleSize, addChildCircle, state } = this.props;
+        const { startTicker, tickTime, addCircle, incrementCircleSize, checkNeighbors, addChildCircle, state } = this.props;
         const { tickerStarted, mousePos, currentIDX } = state;
-        console.log(tickerStarted, 'in start ticker');
+        //console.log(tickerStarted, 'in start ticker');
 
-        incrementIDX();
+        
         addCircle(mousePos.x, mousePos.y, currentIDX);
 
         const ticker = () => {
-            console.log(tickerStarted, 'in start ticker')
+           // console.log(tickerStarted, 'in start ticker')
 
                 tickTime();
                 incrementCircleSize();
-                addChildCircle(currentIDX);
+                checkNeighbors();
+               // addChildCircle(currentIDX);
 
                 this.requestAnimation = window.requestAnimationFrame(ticker);
             
         }
         
         if(!tickerStarted){
-            console.log('starting ticker');
+           // console.log('starting ticker');
             startTicker();
             ticker();
         }
@@ -65,9 +70,20 @@ class App extends Component {
      }
 
     stopTicker = () => {
-        const { stopTicker, state } = this.props;
-        const { tickerStarted } = state;
-        console.log(tickerStarted, 'in stop ticker')
+        const { stopTicker, resetCircleSize, incrementIDX, fixCircle, removeCircle, state } = this.props;
+        const { tickerStarted, circles, currentIDX } = state;
+        resetCircleSize();
+        
+        const thisCircle = circles.filter(circle => circle.id === currentIDX)[0];
+        if(!thisCircle.overlap){
+            fixCircle();
+            incrementIDX();    
+        } else {
+            removeCircle(currentIDX);
+        }
+          
+        
+        //console.log(tickerStarted, 'in stop ticker')
         if(tickerStarted){
             window.cancelAnimationFrame(this.requestAnimation);
             stopTicker();
@@ -78,7 +94,7 @@ class App extends Component {
 
     render() { 
         const { state } = this.props;
-        console.log(state)
+       // console.log(state)
         return (
 
                 <MainView 
@@ -106,7 +122,11 @@ const mapDispatchToProps = dispatch => ({
     incrementIDX : () => dispatch(incrementIDX()),
     incrementCircleSize : () => dispatch(incrementCircleSize()),
     addCircle : (x, y, currentIDX) => dispatch(addCircle(x, y, currentIDX)),
-    addChildCircle : (idx) => dispatch(addChildCircle(idx)) 
+    fixCircle : () => dispatch(fixCircle()),
+    addChildCircle : (idx) => dispatch(addChildCircle(idx)), 
+    resetCircleSize : () => dispatch(resetCircleSize()),
+    checkNeighbors : () => dispatch(checkNeighbors()),
+    removeCircle : (idx) => dispatch(removeCircle(idx)),
 })
 
 
